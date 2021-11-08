@@ -30,6 +30,7 @@ pysarg stage_two -i pysarg/example/outputdir/extracted.fasta -m pysarg/example/o
 ```
 If everything is ok, there should be four files in `outputdir`
 + metadata.txt
+
 |sample  |read_length|read_number|16s_number        |cell_number       |
 |--------|-----------|-----------|------------------|------------------|
 |STAS    |100        |200000     |10.893854748603353|3.05292019025543  |
