@@ -1,0 +1,50 @@
+sample	sequence	gene	gene_length	gene_type	gene_subtype	covered_length
+STAS	STAS_4	ABE98197	219	quinolone	quinolone__qnrS	32
+STAS	STAS_23	gi|446048013|ref|WP_000125868.1|	649	macrolide-lincosamide-streptogramin	macrolide-lincosamide-streptogramin__macB	30
+STAS	STAS_28	ABE98197	219	quinolone	quinolone__qnrS	32
+STAS	STAS_43	NP_840140	274	bacitracin	bacitracin__bacA	32
+STAS	STAS_44	YP_002394666	219	quinolone	quinolone__qnrS	33
+STAS	STAS_52	gi|692125167|ref|WP_032081234.1|	440	multidrug	multidrug__TolC	30
+STAS	STAS_80	ABE98197	219	quinolone	quinolone__qnrS	33
+STAS	STAS_97	AL939114.1.orf1.gene.p01	137	rifamycin	rifamycin__ADP-ribosylating transferase_arr	32
+STAS	STAS_108	gi|951161669|ref|WP_057641377.1|	1049	multidrug	multidrug__multidrug_transporter	25
+STAS	STAS_140	gi|752299418|ref|WP_041155100.1|	219	quinolone	quinolone__qnrS	32
+STAS	STAS_167	gi|752299418|ref|WP_041155100.1|	219	quinolone	quinolone__qnrS	32
+STAS	STAS_174	gi|446871990|ref|WP_000949246.1|	1032	multidrug	multidrug__mexB	31
+STAS	STAS_182	YP_002394666	219	quinolone	quinolone__qnrS	28
+STAS	STAS_213	gi|487670925|ref|WP_001756235.1|	272	sulfonamide	sulfonamide__sul2	29
+STAS	STAS_215	CP000675.2.gene1535.p01	227	unclassified	unclassified__transcriptional regulatory protein CpxR cpxR	28
+STAS	STAS_222	ABE98197	219	quinolone	quinolone__qnrS	33
+SWHAS104	SWHAS104_15	YP_316450	277	bacitracin	bacitracin__bacA	30
+SWHAS104	SWHAS104_18	gi|1031799645|ref|WP_064138838.1|	579	multidrug	multidrug__multidrug_ABC_transporter	32
+SWHAS104	SWHAS104_34	gi|504871867|ref|WP_015058969.1|	302	aminoglycoside	aminoglycoside__aadA	33
+SWHAS104	SWHAS104_44	YP_009182146.1	116	multidrug	multidrug__qacEdelta1	32
+SWHAS104	SWHAS104_60	gi|985600749|ref|WP_060840246.1|	391	beta-lactam	beta-lactam__class C beta-lactamase	33
+SWHAS104	SWHAS104_85	CAI46978	294	beta-lactam	beta-lactam__class A beta-lactamase	32
+SWHAS104	SWHAS104_106	gi|985604672|ref|WP_060844168.1|	391	beta-lactam	beta-lactam__class C beta-lactamase	33
+SWHAS104	SWHAS104_117	gi|654549100|ref|WP_028016802.1|	391	multidrug	multidrug__emrA	32
+SWHAS104	SWHAS104_121	gi|985604672|ref|WP_060844168.1|	391	beta-lactam	beta-lactam__class C beta-lactamase	32
+SWHAS104	SWHAS104_130	gi|928834186|ref|WP_053890508.1|	649	macrolide-lincosamide-streptogramin	macrolide-lincosamide-streptogramin__macB	32
+SWHAS104	SWHAS104_137	AF133139.gene.p01	392	tetracycline	tetracycline__tetG	33
+SWHAS104	SWHAS104_146	ZP_04055725	284	bacitracin	bacitracin__bacA	31
+SWHAS104	SWHAS104_148	gi|857586086|emb|CRL63207.1|	1044	multidrug	multidrug__mdtB	32
+SWHAS104	SWHAS104_154	gi|835497206|ref|WP_047526514.1|	1054	multidrug	multidrug__multidrug_transporter	33
+SWHAS104	SWHAS104_157	gi|695268617|ref|WP_032490794.1|	280	sulfonamide	sulfonamide__sul1	33
+SWHAS104	SWHAS104_161	AY139603.1.gene1.p01	264	aminoglycoside	aminoglycoside__aadA	33
+SWHAS104	SWHAS104_162	ACI02041	640	tetracycline	tetracycline__tetW	33
+SWHAS104	SWHAS104_164	gi|446966005|ref|WP_001043261.1|	272	sulfonamide	sulfonamide__sul2	33
+SWHAS104	SWHAS104_170	gi|657888313|ref|WP_029592374.1|	649	macrolide-lincosamide-streptogramin	macrolide-lincosamide-streptogramin__macB	27
+SWHAS104	SWHAS104_189	gi|504871867|ref|WP_015058969.1|	302	aminoglycoside	aminoglycoside__aadA	31
+SWHAS104	SWHAS104_194	gi|985604672|ref|WP_060844168.1|	391	beta-lactam	beta-lactam__class C beta-lactamase	33
+SWHAS104	SWHAS104_205	YP_009182146.1	116	multidrug	multidrug__qacEdelta1	33
+SWHAS104	SWHAS104_233	ABP68837	227	quinolone	quinolone__qnrB	32
+SWHAS104	SWHAS104_240	gi|857778813|emb|CRL60249.1|	1028	multidrug	multidrug__mdtC	26
+SWHAS104	SWHAS104_241	gi|1027991238|gb|OAH46293.1|	281	beta-lactam	beta-lactam__class A beta-lactamase	32
+SWHAS104	SWHAS104_256	gi|1027991238|gb|OAH46293.1|	281	beta-lactam	beta-lactam__class A beta-lactamase	28
+SWHAS104	SWHAS104_270	gi|985599614|ref|WP_060839111.1|	1060	multidrug	multidrug__mexF	30
+SWHAS104	SWHAS104_294	AF180952.1.gene3.p01	391	beta-lactam	beta-lactam__ampC	31
+SWHAS104	SWHAS104_299	AF133139.gene.p01	392	tetracycline	tetracycline__tetG	33
+SWHAS104	SWHAS104_303	AAK14791	261	beta-lactam	beta-lactam__NPS-1	33
+SWHAS104	SWHAS104_313	gi|695268617|ref|WP_032490794.1|	280	sulfonamide	sulfonamide__sul1	33
+SWHAS104	SWHAS104_315	AY139603.1.gene1.p01	264	aminoglycoside	aminoglycoside__aadA	32
+SWHAS104	SWHAS104_316	CAD13485	640	tetracycline	tetracycline__tetW	33

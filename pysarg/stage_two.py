@@ -5,6 +5,7 @@ import re
 import ast
 from collections import defaultdict
 
+from . import settings
 
 def read_sarg(fasta_file, structure_file):
 	sarg = defaultdict(list)
@@ -26,23 +27,14 @@ def read_sarg(fasta_file, structure_file):
 	return(sarg)
 
 def stage_two(options):
-	print(options)
+	sarg = read_sarg(settings._sarg_fasta, settings._sarg_structure)
 
-	_path = os.path.dirname(os.path.abspath(__file__))
-	_bin_diamond = os.path.join(_path, 'bin','diamond')
-	_database_sarg = os.path.join(_path, 'database','SARG.dmnd')
-
-	_database_sarg_structure = os.path.join(_path, 'database','structure_20181107.LIST')
-	_database_sarg_fasta = os.path.join(_path, 'database','SARG.2.2.fasta')
-
-	sarg = read_sarg(_database_sarg_fasta, _database_sarg_structure)
-	
 	# filter the 'pre-filtered' arg-like fasta
 	subprocess.call(
-        [_bin_diamond, 'blastx',
-        '-d',_database_sarg,
+        [settings._diamond, 'blastx',
+        '-d',settings._sarg,
         '-q',options.infile,
-        '-o',os.path.join(options.outdir, 'extracted.sarg'),
+        '-o',os.path.join(options.outdir, 'extracted.blastx'),
         '-k','1', '-f','tab'])
 
 	meta = {}
@@ -54,7 +46,7 @@ def stage_two(options):
 
 	## filter by length and identity and e-value
 	res = []
-	with open(os.path.join(options.outdir, 'extracted.sarg')) as f:
+	with open(os.path.join(options.outdir, 'extracted.blastx')) as f:
 		for line in f:
 			temp = line.strip().split()
 			if float(temp[2])>=options.id_cutoff and int(temp[3])>=options.len_cutoff and float(temp[-2])<=options.e_cutoff:

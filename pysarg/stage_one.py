@@ -2,8 +2,9 @@ import sys
 import subprocess
 import os
 import re
-import pysam
 from collections import defaultdict
+
+from . import settings
 
 def prepare_samples(indir):
     files = os.listdir(indir)
@@ -26,9 +27,15 @@ def count_reads(files):
                     base += len(line)
     return(read, int(base/read))
 
-def count_pairs(file, lread):
-    ## read mapped in proper pair -> flag 2
-    return(int(pysam.view(file, '-f2', '-c')) * lread / 1432)
+def count_proper_pairs(sam_file):
+    ## flags: https://www.samformat.info/sam-format-flag
+    count = 0
+    with open(sam_file) as f:
+        while line := f.readline().rstrip():
+            if line[0]!='@':
+                if line.split('\t')[1] in {'99', '147', '83', '163'}:
+                    count+=1
+    return(count)
 
 def count_uscmg(files, seqs):
     kocov = defaultdict(lambda: 0)
@@ -44,14 +51,6 @@ def count_uscmg(files, seqs):
 
 def stage_one(options):
 
-    _path = os.path.dirname(os.path.abspath(__file__))
-    _bin_diamond = os.path.join(_path, 'bin','diamond')
-    _bin_minimap2 = os.path.join(_path, 'bin','minimap2')
-
-    _database_gg85 = os.path.join(_path, 'database','gg85.mmi')
-    _database_sarg = os.path.join(_path, 'database','SARG.dmnd')
-    _database_ko30 = os.path.join(_path, 'database','KO30_DIAMOND.dmnd')
-
     _extracted = os.path.join(options.outdir, 'extracted.fa')
     _meta = os.path.join(options.outdir, 'metadata.txt')
 
@@ -60,7 +59,7 @@ def stage_one(options):
         os.remove(_extracted)
 
     seqs = defaultdict(dict)
-    with open(os.path.join(_path, 'database','all_KO30_name.list')) as f:
+    with open(os.path.join(settings._path, 'database','all_KO30_name.list')) as f:
         for line in f:
             temp = line.strip().split('\t')
             seqs[temp[0]]['ko'] = temp[1]
@@ -71,24 +70,25 @@ def stage_one(options):
     for sample in samples:
         for suffix in ['_1', '_2']:
             subprocess.call(
-                [_bin_diamond, 'blastx',
-                '-d',_database_sarg,
+                [settings._diamond, 'blastx',
+                '-d',settings._sarg,
                 '-q',os.path.join(options.indir, sample + suffix + '.fa'),
                 '-o',os.path.join(options.outdir, sample + suffix + '.sarg'),
                 '-e','10','-k','1','--id', '60', '--query-cover', '15'])
 
             subprocess.call(
-                [_bin_diamond, 'blastx',
-                '-d',_database_ko30,
+                [settings._diamond, 'blastx',
+                '-d',settings._ko30,
                 '-q',os.path.join(options.indir, sample + suffix + '.fa'),
                 '-o',os.path.join(options.outdir, sample + suffix + '.uscmg'),
                 '-e',str(options.e_cutoff),'-k','1','--id', str(options.id_cutoff)])
 
         with open(os.path.join(options.outdir, sample +'.sam'), 'w') as f:
             subprocess.call(
-                [_bin_minimap2, '-ax', 'sr', _database_gg85,
+                [settings._minimap2, '-ax', 'sr', settings._gg85,
                 os.path.join(options.indir, sample + '_1.fa'), 
-                os.path.join(options.indir, sample + '_2.fa')], stdout=f)
+                os.path.join(options.indir, sample + '_2.fa'), 
+                '--sam-hit-only'], stdout=f)
 
         _fa = [os.path.join(options.indir, sample + '_' + str(x) + '.fa') for x in range(1,3)]
         _sarg = [os.path.join(options.outdir, sample + '_' + str(x) + '.sarg') for x in range(1,3)]
@@ -122,7 +122,7 @@ def stage_one(options):
         extract_fasta(_fa, _sarg, _extracted, sample) 
 
         _sam = os.path.join(options.outdir, sample + '.sam')
-        pairnum = count_pairs(_sam, lread)
+        pairnum = count_proper_pairs(_sam) * lread / 1432
 
         _uscmg = [os.path.join(options.outdir, sample + '_' + str(x) + '.uscmg') for x in range(1,3)]
 
@@ -134,3 +134,6 @@ def stage_one(options):
         f.write('\t'.join(['sample','read_length','number_reads','number_16s_reads','number_cells']) + '\n')
         for line in meta:
             f.write('\t'.join([str(x) for x in line]) + '\n')
+
+    ## make the output folder cleaner
+    [os.remove(os.path.join(options.outdir, x)) for x in os.listdir(options.outdir) if re.search('.(sarg|uscmg|sam)$',x)]

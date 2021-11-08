@@ -1,7 +1,6 @@
 *egg-info
 build
 dist
-outputdir
 __pycache__
 bin
 .ipynb_check*
