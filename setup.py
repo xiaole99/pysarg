@@ -96,7 +96,7 @@ except ImportError:
 
 setup(
     name='pysarg',
-    version='0.0.1',
+    version='0.0.2',
     license='MIT',
     description='test version',
     author='',
