@@ -2,137 +2,124 @@ import sys
 import subprocess
 import os
 import re
-from collections import defaultdict
+import gzip
 
+from collections import defaultdict
 from . import settings
 
-def prepare_samples(indir):
-    files = os.listdir(indir)
-    samples = sorted(list({re.sub('_[12].*', '', x) for x in files}))
+def read_files(files, sample):
+    def gz_open(file):
+        if file.split('.')[-1] == 'gz':
+            return(gzip.open(file, 'rt'))
+        else:
+            return(open(file, 'rt'))
 
-    # if fq ...
-    # if gzip ... 
-
-    return(samples)
-
-def count_reads(files):
-    read = 0
-    base = 0
+    ## init 
+    sampleinfo = defaultdict(lambda: 0)
     for file in files:
-        with open(file) as f:
+        print('reading the sample information:', file)
+        with gz_open(file) as f:
+            marker = False
             for line in f:
-                if line.startswith('>'):
-                    read += 1
-                else:
-                    base += len(line)
-    return(read, int(base/read))
+                if line[0] in {'@', '>'}:
+                    sampleinfo['read'] += 1
+                    marker = True
+                elif marker:
+                    sampleinfo['base'] += len(line.rstrip())
+                    marker = False
+    return(sampleinfo['read'], int(sampleinfo['base']/sampleinfo['read']))
 
-def count_proper_pairs(sam_file):
-    ## flags: https://www.samformat.info/sam-format-flag
+def count_16s(sam_file):
+    '''
+    count the number of proper pairs of a sam file, equivalent to: samtools view -f2 -c sam_file 
+    '''
     count = 0
     with open(sam_file) as f:
-        while line := f.readline().rstrip():
-            if line[0]!='@':
-                if line.split('\t')[1] in {'99', '147', '83', '163'}:
+        for line in f:
+            if not line.startswith('@'):
+                ## https://www.samformat.info/sam-format-flag
+                if line.rstrip().split('\t')[1] in {'99', '147', '83', '163'}:
                     count+=1
     return(count)
 
-def count_uscmg(files, seqs):
-    kocov = defaultdict(lambda: 0)
-
-    for file in files:
-        with open(file) as f:
-            for line in f:
-                temp = line.strip().split('\t')
-                kocov[seqs.get(temp[1])['ko']] += int(temp[3])/int(seqs.get(temp[1])['length'])
-
-    cellnum = sum(kocov.values())/len(kocov)
-    return(cellnum)
+def count_uscmg(uscmg_file, ko30, ko30cov):
+    with open(uscmg_file) as f:
+        for line in f:
+            temp = line.strip().split('\t')
+            ko30cov[ko30.get(temp[1])['ko30']] += int(temp[3])/int(ko30.get(temp[1])['length'])
+    return(ko30cov)
 
 def stage_one(options):
 
-    _extracted = os.path.join(options.outdir, 'extracted.fa')
-    _meta = os.path.join(options.outdir, 'metadata.txt')
+    _extracted = os.path.join(options.outdir, 'extracted.fasta')
+    _metadata = os.path.join(options.outdir, 'metadata.txt')
 
-    ## reset
-    if os.path.exists(_extracted):
-        os.remove(_extracted)
-
-    seqs = defaultdict(dict)
-    with open(os.path.join(settings._path, 'database','all_KO30_name.list')) as f:
+    ko30 = defaultdict(dict)
+    with open(settings._ko30_list) as f:
         for line in f:
             temp = line.strip().split('\t')
-            seqs[temp[0]]['ko'] = temp[1]
-            seqs[temp[0]]['length'] = temp[2]
+            ko30[temp[0]]['ko30'] = temp[1]
+            ko30[temp[0]]['length'] = temp[2]
 
-    meta = []
-    samples = prepare_samples(options.indir)
-    for sample in samples:
-        for suffix in ['_1', '_2']:
-            subprocess.call(
-                [settings._diamond, 'blastx',
-                '-d',settings._sarg,
-                '-q',os.path.join(options.indir, sample + suffix + '.fa'),
-                '-o',os.path.join(options.outdir, sample + suffix + '.sarg'),
-                '-e','10','-k','1','--id', '60', '--query-cover', '15'])
+    samplefile = defaultdict(list)
+    for file in sorted([x for x in os.listdir(options.indir) if x[0]!='.']): # .DS_Store
+        path = os.path.join(options.indir, file) 
+        name = re.sub('_[12].*', '', file)
+        samplefile[name].append(path)
 
-            subprocess.call(
-                [settings._diamond, 'blastx',
-                '-d',settings._ko30,
-                '-q',os.path.join(options.indir, sample + suffix + '.fa'),
-                '-o',os.path.join(options.outdir, sample + suffix + '.uscmg'),
-                '-e',str(options.e_cutoff),'-k','1','--id', str(options.id_cutoff)])
+    ## save the extracted sequences and metadata
+    metadata = []
+    with open(_extracted, 'w') as f:
+        for sample in samplefile:
+            files = samplefile[sample]
 
-        with open(os.path.join(options.outdir, sample +'.sam'), 'w') as f:
-            subprocess.call(
-                [settings._minimap2, '-ax', 'sr', settings._gg85,
-                os.path.join(options.indir, sample + '_1.fa'), 
-                os.path.join(options.indir, sample + '_2.fa'), 
-                '--sam-hit-only'], stdout=f)
+            ## get the number and mean length of reads
+            read_number, read_length = read_files(files, sample)
 
-        _fa = [os.path.join(options.indir, sample + '_' + str(x) + '.fa') for x in range(1,3)]
-        _sarg = [os.path.join(options.outdir, sample + '_' + str(x) + '.sarg') for x in range(1,3)]
+            ## align to gg85
+            _sam = os.path.join(options.outdir, sample+'.sam')
+            with open(_sam, 'w') as g:
+                subprocess.call(
+                    [settings._minimap2, '-ax', 'sr', settings._gg85,
+                    files[0], 
+                    files[1], 
+                    '--sam-hit-only'], stdout=g)
+            pair_number = count_16s(_sam) * read_length / 1432
 
-        ## number of reads, mean length of reads
-        nread, lread = count_reads(_fa)
-
-        def extract_fasta(_fa, _sarg, _extracted, sample):
-            sarg = set()
-            for file in _sarg:
-                with open(file) as f:
-                    for line in f:
-                        temp = line.strip().split('\t')
-                        sarg.add(temp[0])
-
+            ## align to sarg and ko30
             count = 0
-            s = False
-            with open(_extracted, 'a') as g:
-                for file in _fa:
-                    with open(file) as f:
-                        for line in f:
-                            if line.startswith('>') and line[1:].strip() in sarg:
-                                count += 1
-                                index = '>' + os.path.split(sample)[-1] + '_' + str(count) +'\n'
-                                g.write(index)
-                                s = True
-                            elif s:
-                                g.write(line)
-                                s = False
+            ko30cov = defaultdict(lambda: 0)
+            for file in files:
+                prefix = os.path.join(options.outdir, ''.join(os.path.split(file)[-1].split('.')[:-1]))
 
-        extract_fasta(_fa, _sarg, _extracted, sample) 
+                subprocess.call(
+                    [settings._diamond2, 'blastx',
+                    '-d',settings._sarg,
+                    '-q',file,
+                    '-o',prefix + '.sarg',
+                    '-e','10','-k','1','--id', '60', '--query-cover', '15', '-f6', 'full_qseq'])
 
-        _sam = os.path.join(options.outdir, sample + '.sam')
-        pairnum = count_proper_pairs(_sam) * lread / 1432
+                with open(prefix + '.sarg') as h:
+                    for line in h:
+                        f.write('>' + sample + '_' + str(count) + '\n')
+                        f.write(line)
+                        count += 1
 
-        _uscmg = [os.path.join(options.outdir, sample + '_' + str(x) + '.uscmg') for x in range(1,3)]
+                subprocess.call(
+                    [settings._diamond, 'blastx',
+                    '-d',settings._ko30,
+                    '-q',file,
+                    '-o',prefix + '.uscmg',
+                    '-e',str(options.e_cutoff),'-k','1','--id', str(options.id_cutoff)])
+                ko30cov = count_uscmg(prefix + '.uscmg', ko30, ko30cov)
 
-        cellnum = count_uscmg(_uscmg, seqs)
-        meta.append([sample, lread, nread, pairnum, cellnum])
+            cell_number = sum(ko30cov.values())/len(ko30cov)
+            metadata.append([sample, read_length, read_number, pair_number, cell_number])
 
-    ## save the meta-data for later usage
-    with open(_meta,'w') as f:
-        f.write('\t'.join(['sample','read_length','number_reads','number_16s_reads','number_cells']) + '\n')
-        for line in meta:
+    ## save the metadata for later usage
+    with open(_metadata,'w') as f:
+        f.write('\t'.join(['sample','read_length','read_number','16s_number','cell_number']) + '\n')
+        for line in metadata:
             f.write('\t'.join([str(x) for x in line]) + '\n')
 
     ## make the output folder cleaner

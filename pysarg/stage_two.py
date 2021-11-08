@@ -27,26 +27,26 @@ def read_sarg(fasta_file, structure_file):
 	return(sarg)
 
 def stage_two(options):
-	sarg = read_sarg(settings._sarg_fasta, settings._sarg_structure)
+	sarg = read_sarg(settings._sarg_fasta, settings._sarg_list)
 
 	# filter the 'pre-filtered' arg-like fasta
 	subprocess.call(
-        [settings._diamond, 'blastx',
+        [settings._diamond2, 'blastx',
         '-d',settings._sarg,
         '-q',options.infile,
-        '-o',os.path.join(options.outdir, 'extracted.blastx'),
-        '-k','1', '-f','tab'])
+        '-o',os.path.join(options.outdir, 'extracted.blast'),
+        '-k','1'])
 
-	meta = {}
+	metadata = {}
 	with open(options.metafile) as f:
 		next(f)
 		for line in f:
 			temp = line.strip().split('\t')
-			meta[temp[0]] = temp[1:]
+			metadata[temp[0]] = temp[1:]
 
 	## filter by length and identity and e-value
 	res = []
-	with open(os.path.join(options.outdir, 'extracted.blastx')) as f:
+	with open(os.path.join(options.outdir, 'extracted.blast')) as f:
 		for line in f:
 			temp = line.strip().split()
 			if float(temp[2])>=options.id_cutoff and int(temp[3])>=options.len_cutoff and float(temp[-2])<=options.e_cutoff:

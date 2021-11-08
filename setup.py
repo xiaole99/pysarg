@@ -40,9 +40,27 @@ def _post_install():
     shutil.copy(_diamond_bin_diamond, _bin_diamond)
     shutil.rmtree(_diamond, ignore_errors=True)
 
+    ## install diamond 2 (remove later)
+    _diamond = os.path.join(_path, 'diamond')
+    _diamond_bin = os.path.join(_diamond, 'bin')
+    _diamond_bin_diamond = os.path.join(_diamond_bin, 'diamond')
+
+    if not os.path.exists(_diamond):
+        subprocess.call(['git', 'clone', 'https://github.com/bbuchfink/diamond', _diamond], cwd=_path)
+    
+    if not os.path.exists(_diamond_bin):
+        subprocess.call(['mkdir', 'bin'], cwd=_diamond)
+        subprocess.call(['cmake', '..'], cwd=_diamond_bin)
+        subprocess.call(['make', '-j4'], cwd=_diamond_bin)
+        subprocess.call(['make','install'], cwd=_diamond_bin)
+
+    _bin_diamond2 = os.path.join(_bin, 'diamond2')
+    shutil.copy(_diamond_bin_diamond, _bin_diamond2)
+    shutil.rmtree(_diamond, ignore_errors=True)
+
     ## build database
     _sarg = 'SARG.2.2.fasta'
-    subprocess.call([_bin_diamond, 'makedb', '--in', _sarg, '-d', 'SARG'], cwd=_database)
+    subprocess.call([_bin_diamond2, 'makedb', '--in', _sarg, '-d', 'SARG'], cwd=_database)
 
     # install minimap2
     _minimap2 = os.path.join(_path, 'minimap2')
