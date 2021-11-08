@@ -15,6 +15,10 @@ with open('requirements.txt') as f:
 
 _path = os.path.dirname(os.path.realpath(__file__))
 
+def readme():
+    with open('README.md') as f:
+        return f.read()
+
 ## https://stackoverflow.com/a/38422349
 def _post_install():
     _bin = os.path.join(_path, 'pysarg', 'bin')
@@ -97,6 +101,7 @@ except ImportError:
 setup(
     name='pysarg',
     version='0.0.2',
+    long_description = readme(),
     license='MIT',
     description='test version',
     author='',
