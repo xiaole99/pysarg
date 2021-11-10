@@ -3,9 +3,12 @@ import os
 _path = os.path.dirname(os.path.realpath(__file__))
 _diamond = os.path.join(_path, 'bin','diamond')
 _diamond2 = os.path.join(_path, 'bin','diamond2') # remove later
+_diamond2_version = 'v0.9.24'
+
 _minimap2 = os.path.join(_path, 'bin','minimap2')
 
 _gg85 = os.path.join(_path, 'database','gg85.mmi')
+
 
 _sarg = os.path.join(_path, 'database','SARG.dmnd')
 _sarg_list = os.path.join(_path, 'database','structure_20181107.LIST')

@@ -12,6 +12,12 @@ from setuptools import setup
 ## https://stackoverflow.com/a/48015772
 ## override the build command class to pre-install diamond/minimap2
 from distutils.command.build import build as _build
+from setuptools.command.install import install as _install
+
+class install(_install):
+    def run(self):
+        super().run()
+
 class build(_build):
 
     def run(self):
@@ -49,7 +55,7 @@ class build(_build):
         _diamond_bin_diamond = os.path.join(_diamond_bin, 'diamond')
 
         if not os.path.exists(_diamond):
-            subprocess.call(['git', 'clone', 'https://github.com/bbuchfink/diamond', _diamond], cwd=_path)
+            subprocess.call(['git', 'clone', 'https://github.com/bbuchfink/diamond', '-b', 'v0.9.24', _diamond], cwd=_path)
         
         if not os.path.exists(_diamond_bin):
             subprocess.call(['mkdir', 'bin'], cwd=_diamond)
@@ -70,7 +76,7 @@ class build(_build):
         _minimap2_minimap2 = os.path.join(_minimap2, 'minimap2')
 
         if not os.path.exists(_minimap2):
-            subprocess.call(['git', 'clone', 'https://github.com/lh3/minimap2', _minimap2], cwd=_path)
+            subprocess.call(['git', 'clone', 'https://github.com/lh3/minimap2', '-b', 'v2.17', _minimap2], cwd=_path)
 
         subprocess.call(['make'], cwd=_minimap2)
 
@@ -88,7 +94,7 @@ with open('requirements.txt') as f:
 
 setup(
     name='pysarg',
-    version='0.0.4',
+    version='0.0.5',
     license='MIT',
     description='test version',
     author='',
@@ -113,5 +119,6 @@ setup(
     },
     cmdclass={
     'build': build,
+    'install':install
     }
 )

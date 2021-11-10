@@ -90,25 +90,60 @@ def stage_one(options):
         pair_number = count_16s(_sam) * read_length / 1432
 
         ## align to sarg and ko30
-        count = 0
+        count = 0 # remove later
         ko30cov = defaultdict(lambda: 0)
         for file in files:
             prefix = os.path.join(options.outdir, ''.join(os.path.split(file)[-1].split('.')[:-1]))
 
-            subprocess.call(
-                [settings._diamond2, 'blastx',
-                '-d',settings._sarg,
-                '-q',file,
-                '-o',prefix + '.sarg',
-                '-e','10','-k','1','--id', '60', '--query-cover', '15', '-f6', 'full_qseq'])
+            if settings._diamond2_version!='v0.9.24':
+                subprocess.call(
+                    [settings._diamond2, 'blastx',
+                    '-d',settings._sarg,
+                    '-q',file,
+                    '-o',prefix + '.sarg',
+                    '-e','10','-k','1','--id', '60', '--query-cover', '15', '-f6', 'full_qseq'])
 
-            ## save the extracted fasta
-            with open(_extracted, 'a') as f:
-                with open(prefix + '.sarg') as g:
-                    for line in g:
-                        f.write('>' + sample + '_' + str(count) + '\n')
-                        f.write(line)
-                        count += 1
+                ## save the extracted fasta
+                with open(_extracted, 'a') as f:
+                    with open(prefix + '.sarg') as g:
+                        for line in g:
+                            f.write('>' + sample + '_' + str(count) + '\n')
+                            f.write(line)
+                            count += 1
+            else: # remove later
+                subprocess.call(
+                    [settings._diamond2, 'blastx',
+                    '-d',settings._sarg,
+                    '-q',file,
+                    '-o',prefix + '.sarg',
+                    '-e','10','-k','1','--id', '60', '--query-cover', '15'])
+
+                def extract_fasta(file, _sarg, _extracted, sample, count): # remove later
+                    def gz_open(file):
+                        if file.split('.')[-1] == 'gz':
+                            return(gzip.open(file, 'rt'))
+                        else:
+                            return(open(file, 'rt'))
+
+                    sarg = set()
+                    with open(_sarg) as f:
+                        for line in f:
+                            temp = line.strip().split('\t')
+                            sarg.add(temp[0])
+
+                    s = False
+                    with open(_extracted, 'a') as g:
+                        with gz_open(file) as f:
+                            for line in f:
+                                if line[0] in {'@', '>'} and line[1:].strip() in sarg:
+                                    count += 1
+                                    g.write('>' + sample + '_' + str(count) + '\n')
+                                    s = True
+                                elif s:
+                                    g.write(line)
+                                    s = False
+                    return(count)
+                count = extract_fasta(file, prefix + '.sarg', _extracted, sample, count)
 
             subprocess.call(
                 [settings._diamond, 'blastx',
