@@ -1,4 +1,5 @@
 include requirements.txt
 include README.md
+recursive-exclude pysarg/bin/ *
 recursive-include pysarg/database/ *
 global-exclude *.DS_Store

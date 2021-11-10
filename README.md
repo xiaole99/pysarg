@@ -18,7 +18,7 @@ pip install pysarg
 ```
 
 <s>
-+ pre-build packages (python>=3.7) do not work -> need to download & build the binaries then move to the bin folder, can add a function for that but then has difference to building from source
++ pre-build packages (python>=3.7) do not work for all platform -> command `conda convert -all` only works for pure python code, due the dependencies on diamond and minimap2, need to run `conda build` on {osx-64 linux-32 linux-64}
 ```
 conda install -c xinehc pysarg
 ```

@@ -54,6 +54,11 @@ def stage_one(options):
     _extracted = os.path.join(options.outdir, 'extracted.fasta')
     _metadata = os.path.join(options.outdir, 'metadata.txt')
 
+    ## init 
+    if os.path.isfile(_extracted): os.remove(_extracted)
+    with open(_metadata, 'w') as f:
+        f.write('\t'.join(['sample','read_length','read_number','16s_number','cell_number']) + '\n')
+
     ko30 = defaultdict(dict)
     with open(settings._ko30_list) as f:
         for line in f:
@@ -68,59 +73,57 @@ def stage_one(options):
         samplefile[name].append(path)
 
     ## save the extracted sequences and metadata
-    metadata = []
-    with open(_extracted, 'w') as f:
-        for sample in samplefile:
-            files = samplefile[sample]
+    for sample in samplefile:
+        files = samplefile[sample]
 
-            ## get the number and mean length of reads
-            read_number, read_length = read_files(files, sample)
+        ## get the number and mean length of reads
+        read_number, read_length = read_files(files, sample)
 
-            ## align to gg85
-            _sam = os.path.join(options.outdir, sample+'.sam')
-            with open(_sam, 'w') as g:
-                subprocess.call(
-                    [settings._minimap2, '-ax', 'sr', settings._gg85,
-                    files[0], 
-                    files[1], 
-                    '--sam-hit-only'], stdout=g)
-            pair_number = count_16s(_sam) * read_length / 1432
+        ## align to gg85
+        _sam = os.path.join(options.outdir, sample+'.sam')
+        with open(_sam, 'w') as f:
+            subprocess.call(
+                [settings._minimap2, '-ax', 'sr', settings._gg85,
+                files[0], 
+                files[1], 
+                '--sam-hit-only'], stdout=f)
+        pair_number = count_16s(_sam) * read_length / 1432
 
-            ## align to sarg and ko30
-            count = 0
-            ko30cov = defaultdict(lambda: 0)
-            for file in files:
-                prefix = os.path.join(options.outdir, ''.join(os.path.split(file)[-1].split('.')[:-1]))
+        ## align to sarg and ko30
+        count = 0
+        ko30cov = defaultdict(lambda: 0)
+        for file in files:
+            prefix = os.path.join(options.outdir, ''.join(os.path.split(file)[-1].split('.')[:-1]))
 
-                subprocess.call(
-                    [settings._diamond2, 'blastx',
-                    '-d',settings._sarg,
-                    '-q',file,
-                    '-o',prefix + '.sarg',
-                    '-e','10','-k','1','--id', '60', '--query-cover', '15', '-f6', 'full_qseq'])
+            subprocess.call(
+                [settings._diamond2, 'blastx',
+                '-d',settings._sarg,
+                '-q',file,
+                '-o',prefix + '.sarg',
+                '-e','10','-k','1','--id', '60', '--query-cover', '15', '-f6', 'full_qseq'])
 
-                with open(prefix + '.sarg') as h:
-                    for line in h:
+            ## save the extracted fasta
+            with open(_extracted, 'a') as f:
+                with open(prefix + '.sarg') as g:
+                    for line in g:
                         f.write('>' + sample + '_' + str(count) + '\n')
                         f.write(line)
                         count += 1
 
-                subprocess.call(
-                    [settings._diamond, 'blastx',
-                    '-d',settings._ko30,
-                    '-q',file,
-                    '-o',prefix + '.uscmg',
-                    '-e',str(options.e_cutoff),'-k','1','--id', str(options.id_cutoff)])
-                ko30cov = count_uscmg(prefix + '.uscmg', ko30, ko30cov)
+            subprocess.call(
+                [settings._diamond, 'blastx',
+                '-d',settings._ko30,
+                '-q',file,
+                '-o',prefix + '.uscmg',
+                '-e',str(options.e_cutoff),'-k','1','--id', str(options.id_cutoff)])
+            ko30cov = count_uscmg(prefix + '.uscmg', ko30, ko30cov)
 
-            cell_number = sum(ko30cov.values())/len(ko30cov)
-            metadata.append([sample, read_length, read_number, pair_number, cell_number])
+        cell_number = sum(ko30cov.values())/len(ko30cov) if len(ko30cov)!=0 else 0
+        metadata = [sample, read_length, read_number, pair_number, cell_number]
 
-    ## save the metadata for later usage
-    with open(_metadata,'w') as f:
-        f.write('\t'.join(['sample','read_length','read_number','16s_number','cell_number']) + '\n')
-        for line in metadata:
-            f.write('\t'.join([str(x) for x in line]) + '\n')
+        ## save the metadata for later usage
+        with open(_metadata, 'a') as f:
+            f.write('\t'.join([str(x) for x in metadata]) + '\n')
 
     ## make the output folder cleaner
     [os.remove(os.path.join(options.outdir, x)) for x in os.listdir(options.outdir) if re.search('.(sarg|uscmg|sam)$',x)]
