@@ -15,9 +15,9 @@ with open('requirements.txt') as f:
 
 _path = os.path.dirname(os.path.realpath(__file__))
 
-def readme():
-    with open('README.md') as f:
-        return f.read()
+# def readme():
+#     with open('README.md') as f:
+#         return f.read()
 
 ## https://stackoverflow.com/a/38422349
 def _post_install():
@@ -100,8 +100,8 @@ except ImportError:
 
 setup(
     name='pysarg',
-    version='0.0.2',
-    long_description = readme(),
+    version='0.0.3',
+    # long_description = readme(),
     license='MIT',
     description='test version',
     author='',
@@ -116,9 +116,8 @@ setup(
         # eg: 'keyword1', 'keyword2', 'keyword3',
     ],
     package_data={
-      'pysarg': ['bin/*', 'database/*.bmnd'],
+      'pysarg': ['database/*'],
     },
-    include_package_data=True,
     install_requires=requirements,
     entry_points={
         'console_scripts': [

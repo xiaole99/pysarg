@@ -17,10 +17,12 @@ python setup.py install
 pip install pysarg
 ```
 
-+ pre-build packages (python>=3.7)
+<s>
++ pre-build packages (python>=3.7) do not work -> need to download & build the binaries then move to the bin folder, can add a function for that but then has difference to building from source
 ```
 conda install -c xinehc pysarg
 ```
+</s>
 
 ## Example
 To run the examples, use:
