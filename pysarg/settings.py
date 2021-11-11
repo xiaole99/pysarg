@@ -3,7 +3,6 @@ import os
 _path = os.path.dirname(os.path.realpath(__file__))
 _diamond = os.path.join(_path, 'bin','diamond')
 _diamond2 = os.path.join(_path, 'bin','diamond2') # remove later
-_diamond2_version = 'v0.9.24'
 
 _minimap2 = os.path.join(_path, 'bin','minimap2')
 

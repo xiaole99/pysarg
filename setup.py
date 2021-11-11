@@ -4,7 +4,6 @@ import os
 import shutil
 import subprocess
 import re
-import atexit
 
 from setuptools import find_packages
 from setuptools import setup
@@ -94,7 +93,7 @@ with open('requirements.txt') as f:
 
 setup(
     name='pysarg',
-    version='0.0.5',
+    version='0.0.6',
     license='MIT',
     description='test version',
     author='',

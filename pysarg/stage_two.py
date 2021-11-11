@@ -14,7 +14,7 @@ def read_sarg(fasta_file, structure_file):
 	        if line.startswith('>'):
 	            name = re.sub('\s.*','',line[1:])
 	        else:
-	        	sarg[name].append(str(len(line)))
+	        	sarg[name].append(str(len(line.rstrip())))
 
 	with open(structure_file) as f:
 		next(f) # skip header
@@ -35,7 +35,9 @@ def stage_two(options):
         '-d',settings._sarg,
         '-q',options.infile,
         '-o',os.path.join(options.outdir, 'extracted.blast'),
-        '-k','1'])
+        '-k','1',
+        '-e',str(options.e_cutoff),
+        '-p',str(options.threads)])
 
 	metadata = {}
 	with open(options.metafile) as f:
@@ -49,7 +51,7 @@ def stage_two(options):
 	with open(os.path.join(options.outdir, 'extracted.blast')) as f:
 		for line in f:
 			temp = line.strip().split()
-			if float(temp[2])>=options.id_cutoff and int(temp[3])>=options.len_cutoff and float(temp[-2])<=options.e_cutoff:
+			if float(temp[2])>=options.id_cutoff and int(temp[3])>=options.len_cutoff:
 				sample = re.sub('_\d+$','',temp[0])
 				res.append([sample] + [temp[0], temp[1]] +  sarg.get(temp[1]) +  [temp[3]])
 

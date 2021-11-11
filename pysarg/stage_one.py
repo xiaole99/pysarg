@@ -39,7 +39,7 @@ def count_16s(sam_file):
             if not line.startswith('@'):
                 ## https://www.samformat.info/sam-format-flag
                 if line.rstrip().split('\t')[1] in {'99', '147', '83', '163'}:
-                    count+=1
+                    count += 1
     return(count)
 
 def count_uscmg(uscmg_file, ko30, ko30cov):
@@ -90,67 +90,32 @@ def stage_one(options):
         pair_number = count_16s(_sam) * read_length / 1432
 
         ## align to sarg and ko30
-        count = 0 # remove later
+        count = 1
         ko30cov = defaultdict(lambda: 0)
         for file in files:
             prefix = os.path.join(options.outdir, ''.join(os.path.split(file)[-1].split('.')[:-1]))
 
-            if settings._diamond2_version!='v0.9.24':
-                subprocess.call(
-                    [settings._diamond2, 'blastx',
-                    '-d',settings._sarg,
-                    '-q',file,
-                    '-o',prefix + '.sarg',
-                    '-e','10','-k','1','--id', '60', '--query-cover', '15', '-f6', 'full_qseq'])
+            subprocess.call(
+                [settings._diamond2, 'blastx',
+                '-d',settings._sarg,
+                '-q',file,
+                '-o',prefix + '.sarg',
+                '-e','10','-k','1','--id', '60', '--query-cover', '15', '-f6', 'full_qseq', '-p', str(options.threads)])
 
-                ## save the extracted fasta
-                with open(_extracted, 'a') as f:
-                    with open(prefix + '.sarg') as g:
-                        for line in g:
-                            f.write('>' + sample + '_' + str(count) + '\n')
-                            f.write(line)
-                            count += 1
-            else: # remove later
-                subprocess.call(
-                    [settings._diamond2, 'blastx',
-                    '-d',settings._sarg,
-                    '-q',file,
-                    '-o',prefix + '.sarg',
-                    '-e','10','-k','1','--id', '60', '--query-cover', '15'])
-
-                def extract_fasta(file, _sarg, _extracted, sample, count): # remove later
-                    def gz_open(file):
-                        if file.split('.')[-1] == 'gz':
-                            return(gzip.open(file, 'rt'))
-                        else:
-                            return(open(file, 'rt'))
-
-                    sarg = set()
-                    with open(_sarg) as f:
-                        for line in f:
-                            temp = line.strip().split('\t')
-                            sarg.add(temp[0])
-
-                    s = False
-                    with open(_extracted, 'a') as g:
-                        with gz_open(file) as f:
-                            for line in f:
-                                if line[0] in {'@', '>'} and line[1:].strip() in sarg:
-                                    count += 1
-                                    g.write('>' + sample + '_' + str(count) + '\n')
-                                    s = True
-                                elif s:
-                                    g.write(line)
-                                    s = False
-                    return(count)
-                count = extract_fasta(file, prefix + '.sarg', _extracted, sample, count)
+            ## save the extracted fasta
+            with open(_extracted, 'a') as f:
+                with open(prefix + '.sarg') as g:
+                    for line in g:
+                        f.write('>' + sample + '_' + str(count) + '\n')
+                        f.write(line)
+                        count += 1
 
             subprocess.call(
                 [settings._diamond, 'blastx',
                 '-d',settings._ko30,
                 '-q',file,
                 '-o',prefix + '.uscmg',
-                '-e',str(options.e_cutoff),'-k','1','--id', str(options.id_cutoff)])
+                '-e',str(options.e_cutoff),'-k','1','--id', str(options.id_cutoff), '-p', str(options.threads)])
             ko30cov = count_uscmg(prefix + '.uscmg', ko30, ko30cov)
 
         cell_number = sum(ko30cov.values())/len(ko30cov) if len(ko30cov)!=0 else 0
