@@ -4,30 +4,34 @@ Python implementation of [ARGs_OAP](https://github.com/biofuture/Ublastx_stageon
 ## Installation
 + build from source (*cmake*, *zlib* and *libpthread* are required for building [diamond](https://github.com/bbuchfink/diamond) and [minimap2](https://github.com/lh3/minimap2)): 
 
-```
+```bash
 git clone https://github.com/xinehc/pysarg
 cd pysarg
 python setup.py install
 ```
 
 + the source code is also uploaded to [pypi](https://pypi.org/search/?q=pysarg), try:
-```
-## make take a while for building the wheel, as 2 different versions of diamond are used
+```bash
+## make take a while for building the wheel, as 2 different versions of diamond need to be compiled
+## use pip3 if needed
 pip install pysarg
 ```
 
-<s>
-
-+ pre-build packages (python>=3.7) do not work for all platform -> command `conda convert -all` only works for pure python code, due the dependencies on diamond and minimap2, need to run `conda build` on {osx-64 linux-32 linux-64}
-
-```
++ pre-compiled [conda](https://anaconda.org/xinehc/pysarg) packages (`osx-64` or `linux-64`, python 3.6)
+```bash
 conda install -c xinehc pysarg
 ```
-</s>
+
++ only python=3.6 package has been uploaded, if python!=3.6, create a new conda environment
+```bash
+conda create -n pysarg python=3.6 -c xinehc pysarg
+source activate pysarg
+```
+
 
 ## Example
 To run the examples, use:
-```python
+```bash
 pysarg stage_one -i pysarg/example/inputdir -o pysarg/example/outputdir
 pysarg stage_two -i pysarg/example/outputdir/extracted.fasta -m pysarg/example/outputdir/metadata.txt -o pysarg/example/outputdir 
 ```
