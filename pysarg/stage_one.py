@@ -110,12 +110,20 @@ def stage_one(options):
                         f.write(line)
                         count += 1
 
-            subprocess.call(
-                [settings._diamond, 'blastx',
-                '-d',settings._ko30,
-                '-q',file,
-                '-o',prefix + '.uscmg',
-                '-e',str(options.e_cutoff),'-k','1','--id', str(options.id_cutoff), '-p', str(options.threads)])
+            if options.original:
+                subprocess.call(
+                    [os.path.join(os.path.split(settings._diamond)[0], 'diamondv0.8.16'), 'blastx',
+                    '-d',settings._ko30,
+                    '-q',file,
+                    '-o',prefix + '.uscmg',
+                    '-e',str(options.e_cutoff),'-k','1','--id', str(options.id_cutoff), '-p', str(options.threads)])
+            else:
+                subprocess.call(
+                    [settings._diamond, 'blastx',
+                    '-d',settings._ko30,
+                    '-q',file,
+                    '-o',prefix + '.uscmg',
+                    '-e',str(options.e_cutoff),'-k','1','--id', str(options.id_cutoff), '-p', str(options.threads)])
             ko30cov = count_uscmg(prefix + '.uscmg', ko30, ko30cov)
 
         cell_number = sum(ko30cov.values())/len(ko30cov) if len(ko30cov)!=0 else 0

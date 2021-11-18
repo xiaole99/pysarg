@@ -20,6 +20,7 @@ def parse_options(argv):
     optional_one.add_argument('-x', '--e_cutoff', help='evalue cutoff, default 3', default=3)
     optional_one.add_argument('-y', '--id_cutoff', help='identity cutoff, default 0.45', default=0.45)
     optional_one.add_argument('-n', '--threads', help='number of threads for diamond', default=8)
+    optional_one.add_argument('--original', help="use the ublastx_stageone's diamond and blastx binaries, linux only", action='store_true')
 
     parser_stage_one.set_defaults(func=stage_one)
 
@@ -35,6 +36,7 @@ def parse_options(argv):
     optional_two.add_argument('-y', '--id_cutoff', help='identity cutoff, default 80', default=80)
     optional_two.add_argument('-z', '--len_cutoff', help='length cutoff, default 25', default=25)
     optional_two.add_argument('-n', '--threads', help='number of threads for diamond', default=8)
+    optional_two.add_argument('--original', help="use the ublastx_stageone's diamond and blastx binaries, linux only", action='store_true')
 
     parser_stage_two.set_defaults(func=stage_two)
 

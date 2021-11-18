@@ -1,5 +1,7 @@
 include requirements.txt
 include README.md
-recursive-exclude pysarg/bin/ *
+include pysarg/bin/blastx
+include pysarg/bin/diamondv0.8.16
+
 recursive-include pysarg/database/ *
 global-exclude *.DS_Store

@@ -30,14 +30,25 @@ def stage_two(options):
 	sarg = read_sarg(settings._sarg_fasta, settings._sarg_list)
 
 	# filter the 'pre-filtered' arg-like fasta
-	subprocess.call(
-        [settings._diamond2, 'blastx',
-        '-d',settings._sarg,
-        '-q',options.infile,
-        '-o',os.path.join(options.outdir, 'extracted.blast'),
-        '-k','1',
-        '-e',str(options.e_cutoff),
-        '-p',str(options.threads)])
+	if options.original:
+		subprocess.call(
+			[os.path.join(os.path.split(settings._diamond)[0], 'blastx'),
+	        '-db',settings._sarg_fasta,
+	        '-query',options.infile,
+	        '-out',os.path.join(options.outdir, 'extracted.blast'),
+	        '-max_target_seqs','1',
+	        '-evalue',str(options.e_cutoff),
+	        '-num_threads',str(options.threads),
+	        '-outfmt','6'])
+	else:
+		subprocess.call(
+	        [settings._diamond2, 'blastx',
+	        '-d',settings._sarg,
+	        '-q',options.infile,
+	        '-o',os.path.join(options.outdir, 'extracted.blast'),
+	        '-k','1',
+	        '-e',str(options.e_cutoff),
+	        '-p',str(options.threads)])
 
 	metadata = {}
 	with open(options.metafile) as f:
