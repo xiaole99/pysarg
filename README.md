@@ -22,11 +22,14 @@ pip install pysarg
 conda install -c xinehc pysarg
 ```
 
+<s>
+
 + only python=3.6 package has been uploaded, if python!=3.6, create a new conda environment
 ```bash
 conda create -n pysarg python=3.6 -c xinehc pysarg
 source activate pysarg
 ```
+</s>
 
 
 ## Example
@@ -34,6 +37,10 @@ To run the examples, use:
 ```bash
 pysarg stage_one -i pysarg/example/inputdir -o pysarg/example/outputdir
 pysarg stage_two -i pysarg/example/outputdir/extracted.fasta -m pysarg/example/outputdir/metadata.txt -o pysarg/example/outputdir 
+
+## LINUX only: add flag --original to get Ublastx_stageone's results (required to use the pre-compiled binaries in Ublastx_stageone)
+pysarg stage_one -i pysarg/example/inputdir -o pysarg/example/outputdir --original
+pysarg stage_two -i pysarg/example/outputdir/extracted.fasta -m pysarg/example/outputdir/metadata.txt -o pysarg/example/outputdir --original
 ```
 If everything is ok, there should be four files in `outputdir`
 + metadata.txt
