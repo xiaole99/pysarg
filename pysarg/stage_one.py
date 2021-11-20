@@ -69,7 +69,7 @@ def stage_one(options):
     samplefile = defaultdict(list)
     for file in sorted([x for x in os.listdir(options.indir) if x[0]!='.']): # .DS_Store
         path = os.path.join(options.indir, file) 
-        name = re.sub('_[12].*', '', file)
+        name = re.sub('_[12]\..*', '', file)
         samplefile[name].append(path)
 
     ## save the extracted sequences and metadata
