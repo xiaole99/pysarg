@@ -2,5 +2,7 @@
 build
 dist
 __pycache__
-bin
 .ipynb_check*
+bin/*
+!bin/blastx
+!bin/diamondv0.8.16

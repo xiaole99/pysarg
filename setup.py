@@ -93,7 +93,7 @@ with open('requirements.txt') as f:
 
 setup(
     name='pysarg',
-    version='0.0.10',
+    version='0.0.11',
     license='MIT',
     description='test version',
     author='',
