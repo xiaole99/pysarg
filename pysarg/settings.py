@@ -18,4 +18,4 @@ _ko30_list = os.path.join(_path, 'database','all_KO30_name.list')
 
 ## if not build form source (conda), need to install
 if not os.path.isfile(_diamond) or not os.path.isfile(_diamond2) or not os.path.isfile(_minimap2):
-	raise RuntimeError('please make sure diamond/minimap2 are installed')
+    raise RuntimeError('please make sure diamond/minimap2 are installed')
