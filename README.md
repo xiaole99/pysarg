@@ -30,7 +30,7 @@ source activate pysarg
 ```
 
 ## Example
-Two toy examples (100k reads, 100bp) are provided in `example/inputdir`:
+Two toy examples (100k paired-end reads, 100bp each) are provided in `example/inputdir`:
 
 ```bash
 # git clone https://github.com/xinehc/pysarg
