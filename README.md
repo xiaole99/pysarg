@@ -30,8 +30,10 @@ source activate pysarg
 ```
 
 ## Example
-To run the examples, use:
+Two toy examples (100k reads, 100bp) are provided in `example/inputdir`:
+
 ```bash
+# git clone https://github.com/xinehc/pysarg
 # mkdir -p pysarg/example/outputdir
 pysarg stage_one -i pysarg/example/inputdir -o pysarg/example/outputdir
 pysarg stage_two -i pysarg/example/outputdir/extracted.fasta -m pysarg/example/outputdir/metadata.txt -o pysarg/example/outputdir 
@@ -40,15 +42,16 @@ pysarg stage_two -i pysarg/example/outputdir/extracted.fasta -m pysarg/example/o
 pysarg stage_one -i pysarg/example/inputdir -o pysarg/example/outputdir --original
 pysarg stage_two -i pysarg/example/outputdir/extracted.fasta -m pysarg/example/outputdir/metadata.txt -o pysarg/example/outputdir --original
 ```
-If everything is ok, there should be four files in `outputdir`
-+ metadata.txt
+
+If everything is ok, there should be four output files in `example/outputdir`
++ `metadata.txt`
 
 |sample  |read_length|read_number|16s_number        |cell_number       |
 |--------|-----------|-----------|------------------|------------------|
 |STAS    |100        |200000     |9.776536312849162|3.05292019025543  |
 |SWHAS104|100        |200000     |9.35754189944134 |3.3635174193105737|
 
-+ output.txt
++ `output.txt`
 
 |sample  |sequence    |gene                            |gene_length|gene_type                          |gene_subtype                                              |covered_length|
 |--------|------------|--------------------------------|-----------|-----------------------------------|----------------------------------------------------------|--------------|
